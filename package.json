@@ -16,6 +16,7 @@
     "@radix-ui/react-progress": "^1.0.3",
     "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-tabs": "^1.1.0",
     "@tomickigrzegorz/react-circular-progress-bar": "^1.1.2",
     "@types/node": "^20.14.5",
     "add": "^2.0.6",

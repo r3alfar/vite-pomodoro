@@ -4,6 +4,7 @@ import { CircularProgressbar } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 import { useEffect, useRef, useState } from "react"
 import { Progress } from "../ui/progress"
+// import { Tabs, TabsList, TabsTrigger } from "../ui/tabs"
 
 // import { Flat } from '@alptugidin/react-circular-progress-bar'
 
@@ -13,11 +14,23 @@ enum TimerType {
   LONG_BREAK = 'long_break'
 }
 
+const TimerTypeProperties = {
+  [TimerType.POMODORO]: {
+    defaultSeconds: 15
+  },
+  [TimerType.SHORT_BREAK]: {
+    defaultSeconds: 10
+  },
+  [TimerType.LONG_BREAK]: {
+    defaultSeconds: 5
+  }
+}
+
 
 function PomoSelector() {
-
+  const enumTimerType = Object.entries(TimerType);
   const [timerType, setTypeTimer] = useState(TimerType.POMODORO)
-  const [initialSeconds, setInitialSeconds] = useState(60)
+  const [initialSeconds, setInitialSeconds] = useState(TimerTypeProperties[TimerType.POMODORO].defaultSeconds)
   const [initialMinutes, setInitialMinutes] = useState(Math.floor(initialSeconds / 60))
   const [seconds, setSeconds] = useState(initialSeconds % 60)
   const [minutes, setMinutes] = useState(initialMinutes)
@@ -25,36 +38,12 @@ function PomoSelector() {
   const [timePercentage, setTimePercentage] = useState(100)
   const [timePassed, setTimePassed] = useState(initialSeconds)
   const audioRef = useRef(null)
+  let thisInterval: number | Timer | undefined = undefined;
 
-  function onChangeTimerType(value: TimerType) {
-    // console.log("before: ", timerType)
-    setTypeTimer(value)
 
-  }
-
-  // useEffect(() => {
-  //   console.log("side effect run")
-  //   let interval = undefined;
-  //   if (isActive) {
-  //     console.log("interval active", seconds)
-  //     interval = setInterval(() => {
-  //       setSeconds((seconds) => seconds - 1)
-  //     }, 1000)
-  //   }
-  //   else if (!isActive && seconds !== 0) {
-  //     clearInterval(interval)
-  //     console.log("interval finished")
-  //   }
-
-  //   if (seconds === 0) {
-  //     clearInterval(interval)
-  //   }
-  //   return () => clearInterval(interval)
-  // }, [timerType, isActive, seconds])
-
+  //BUAT HANDLE COUNTDOWN
   useEffect(() => {
-    let thisInterval: number | Timer | undefined = undefined;
-    if (isActive && minutes >= 0) {
+    function handleTimer() {
       // console.log("interval active", seconds)
       setTimePercentage((timePassed / initialSeconds) * 100)
       thisInterval = setInterval(() => {
@@ -86,8 +75,13 @@ function PomoSelector() {
       }, 1000)
     }
 
+
+    if (isActive && minutes >= 0) {
+      handleTimer()
+    }
+
     else if (!isActive && seconds !== 0) {
-      clearInterval(undefined)
+      clearInterval(thisInterval)
       // setSeconds(seconds);
       // setMinutes(minutes)
       console.log("interval finished")
@@ -97,6 +91,31 @@ function PomoSelector() {
       clearInterval(thisInterval)
     }
   }, [isActive, seconds, minutes, timePassed, timePercentage])
+
+  function onChangeTimerType(value: TimerType) {
+    // console.log("before: ", timerType)
+    setTypeTimer(value)
+    if (isActive && minutes >= 0) {
+      console.log("override dan ganti tipe: ", value)
+      setIsActive(false)
+      clearInterval(thisInterval)
+      //hydrate timer data
+      const defaultSeconds = TimerTypeProperties[value].defaultSeconds
+      setInitialSeconds(defaultSeconds)
+      setMinutes(Math.floor(defaultSeconds / 60))
+      setSeconds(defaultSeconds % 60)
+      setTimePercentage(100)
+      setTimePassed(defaultSeconds)
+    }
+    else {
+      const defaultSeconds = TimerTypeProperties[value].defaultSeconds
+      setInitialSeconds(defaultSeconds)
+      setMinutes(Math.floor(defaultSeconds / 60))
+      setSeconds(defaultSeconds % 60)
+      setTimePercentage(100)
+      setTimePassed(defaultSeconds)
+    }
+  }
 
   const toggleTime = () => {
     setIsActive(!isActive)
@@ -111,13 +130,6 @@ function PomoSelector() {
 
   }
 
-  // const formatTime = (seconds: number) => {
-  //   const minutes = Math.floor(seconds / 60);
-  //   const remainingSeconds = seconds % 60;
-  //   return `
-  //     ${minutes < 10 ? '0' : ''}${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}
-  //   `
-  // }
 
   const formatTime = () => {
 
@@ -164,6 +176,17 @@ function PomoSelector() {
       </div>
       <Separator className="my-4" />
       <div className="flex h-5 items-center justify-center space-x-4 text-sm">
+
+        {/* <Tabs defaultValue={TimerType.POMODORO}>
+          <TabsList>
+            {
+              enumTimerType.map(([key, value]) => (
+                <TabsTrigger key={value} value={value} onClick={() => onChangeTimerType(value)} >{key}</TabsTrigger>
+              ))
+            }
+          </TabsList>
+        </Tabs> */}
+
         <div>
 
           <Button onClick={() => onChangeTimerType(TimerType.POMODORO)} variant="ghost">
@@ -192,7 +215,7 @@ function PomoSelector() {
       </div>
       <div className="flex flex-row justify-center mb-6">
         <Button variant="secondary" onClick={() => toggleTime()} >{isActive ? 'Pause' : 'Start'}</Button>
-        <Button variant="secondary" onClick={() => resetTime()}>Stop</Button>
+        <Button variant="secondary" onClick={() => resetTime()}>Reset</Button>
       </div>
       <div>
         {/* <p>{formatTime(1500)}</p> */}
