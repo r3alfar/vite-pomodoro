@@ -4,7 +4,6 @@ import viteLogo from '/vite.svg'
 import googleLogo from './assets/google-logo.svg'
 import './App.css'
 import { Button } from './components/ui/button'
-import { Progress } from './components/ui/progress'
 import PomoSelector from './components/pomodoro/pomo-selector'
 
 function App() {
@@ -12,9 +11,6 @@ function App() {
 
   return (
     <>
-      <div className='mb-4'>
-        <Progress value={34} />
-      </div>
       <div className=''>
         <PomoSelector />
       </div>

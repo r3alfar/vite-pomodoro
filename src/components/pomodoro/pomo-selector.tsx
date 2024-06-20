@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { CircularProgressbar } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 import { useEffect, useRef, useState } from "react"
+import { Progress } from "../ui/progress"
 
 // import { Flat } from '@alptugidin/react-circular-progress-bar'
 
@@ -21,6 +22,8 @@ function PomoSelector() {
   const [seconds, setSeconds] = useState(initialSeconds % 60)
   const [minutes, setMinutes] = useState(initialMinutes)
   const [isActive, setIsActive] = useState(false)
+  const [timePercentage, setTimePercentage] = useState(100)
+  const [timePassed, setTimePassed] = useState(initialSeconds)
   const audioRef = useRef(null)
 
   function onChangeTimerType(value: TimerType) {
@@ -51,21 +54,35 @@ function PomoSelector() {
 
   useEffect(() => {
     let thisInterval: number | Timer | undefined = undefined;
-    if (isActive) {
-      console.log("interval active", seconds)
+    if (isActive && minutes >= 0) {
+      // console.log("interval active", seconds)
+      setTimePercentage((timePassed / initialSeconds) * 100)
       thisInterval = setInterval(() => {
         if (seconds > 0) {
           setSeconds((seconds) => seconds - 1)
         }
         if (seconds === 0) {
           if (minutes === 0) {
+
+            // console.log("SUPPOSED TO CLOSE/////////////////////////////////////////////////////////////////////////////")
             clearInterval(thisInterval)
+            setMinutes(Math.floor(initialSeconds / 60))
+            setSeconds(initialSeconds % 60)
+            setIsActive(false)
+            setTimePercentage(100)
+            setTimePassed(initialSeconds)
+            return;
           }
           else {
             setMinutes((minutes) => minutes - 1)
             setSeconds(59)
           }
         }
+        // to calculate percentage
+        setTimePassed(timePassed - 1)
+        // console.log("timepassed: ", timePassed)
+        // setTimePercentage((timePassed / initialSeconds) * 100)
+        // console.log("timePercentage: ", timePercentage)
       }, 1000)
     }
 
@@ -79,7 +96,7 @@ function PomoSelector() {
     return () => {
       clearInterval(thisInterval)
     }
-  }, [isActive, seconds, minutes])
+  }, [isActive, seconds, minutes, timePassed, timePercentage])
 
   const toggleTime = () => {
     setIsActive(!isActive)
@@ -89,22 +106,56 @@ function PomoSelector() {
     setMinutes(Math.floor(initialSeconds / 60))
     setSeconds(initialSeconds % 60)
     setIsActive(false)
+    setTimePercentage(100)
+    setTimePassed(initialSeconds)
+
   }
 
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `
-      ${minutes < 10 ? '0' : ''}${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}
-    `
+  // const formatTime = (seconds: number) => {
+  //   const minutes = Math.floor(seconds / 60);
+  //   const remainingSeconds = seconds % 60;
+  //   return `
+  //     ${minutes < 10 ? '0' : ''}${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}
+  //   `
+  // }
+
+  const formatTime = () => {
+
+    if (minutes === 0 && seconds === 0) {
+      return (`${minutes}0:${seconds}0`)
+    }
+    else {
+      // const scd = `0${seconds}`
+      let as: string;
+      if (seconds < 10) {
+        as = `0${seconds}`
+      } else {
+        as = seconds.toString()
+      }
+
+      let am: string;
+      if (minutes < 10) {
+        am = `0${minutes}`
+      } else {
+        am = minutes.toString()
+      }
+
+      return (`${am}:${as}`)
+    }
+    // minutes === 0 && seconds === 0 ? 
+    //   return (<h3>{minutes}:{seconds}</h3>) :
+    //   return (<h3>{minutes}:{seconds < 10 ? `0${seconds}` : seconds}</h3>)
   }
 
 
 
   return (
     <div
-    // className="relative z-20"
+      className="mt-4"
     >
+      <div className='mb-4'>
+        <Progress value={timePercentage} />
+      </div>
       <div className="space-y-1">
         <h4 className="text-sm font-medium leading-none">Radix Primitives</h4>
         <p className="text-sm text-muted-foreground">
@@ -137,7 +188,7 @@ function PomoSelector() {
       <div
         className="grid place-items-center max-h-[300px] max-w-[300px] h-[300px] w-[300px] mx-auto mt-8"
       >
-        <CircularProgressbar value={62} text={formatTime(1500)} />
+        <CircularProgressbar value={timePercentage} text={formatTime()} />
       </div>
       <div className="flex flex-row justify-center mb-6">
         <Button variant="secondary" onClick={() => toggleTime()} >{isActive ? 'Pause' : 'Start'}</Button>
