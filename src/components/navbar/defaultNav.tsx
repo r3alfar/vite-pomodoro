@@ -26,31 +26,31 @@ export default function DefaultNav() {
         <NavigationMenuList className="gap-x-8">
           <NavigationMenuItem>
 
-            <NavigationMenuLink>
-              <a href="/" className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground py-2 px-2 hover:rounded-lg">
+            <NavigationMenuLink href="/" className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground py-2 px-2 hover:rounded-lg">
+              {/* <a href="/" className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground py-2 px-2 hover:rounded-lg">
                 Documentation
-              </a>
-
+              </a> */}
+              Documentation
             </NavigationMenuLink>
 
           </NavigationMenuItem>
           <NavigationMenuItem>
 
-            <NavigationMenuLink>
-              <a href="/" className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground py-2 px-2 hover:rounded-lg">
+            <NavigationMenuLink href="/" className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground py-2 px-2 hover:rounded-lg">
+              {/* <a href="/" className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground py-2 px-2 hover:rounded-lg">
                 Setting
-              </a>
-
+              </a> */}
+              Setting
             </NavigationMenuLink>
 
           </NavigationMenuItem>
           <NavigationMenuItem>
 
-            <NavigationMenuLink>
-              <a href="/" className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground py-2 px-2 hover:rounded-lg">
+            <NavigationMenuLink href="/" className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground py-2 px-2 hover:rounded-lg">
+              {/* <a href="/" className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground py-2 px-2 hover:rounded-lg">
                 About
-              </a>
-
+              </a> */}
+              About
             </NavigationMenuLink>
 
           </NavigationMenuItem>
