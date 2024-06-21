@@ -5,6 +5,7 @@ import googleLogo from './assets/google-logo.svg'
 import './App.css'
 import { Button } from './components/ui/button'
 import PomoSelector from './components/pomodoro/pomo-selector'
+import TaskView from './components/pomodoro/task-view'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -13,6 +14,9 @@ function App() {
     <>
       <div className=''>
         <PomoSelector />
+      </div>
+      <div>
+        <TaskView />
       </div>
       <div className='flex flex-row justify-center'>
         <a href="https://vitejs.dev" target="_blank">

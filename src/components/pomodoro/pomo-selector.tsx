@@ -169,7 +169,7 @@ function PomoSelector() {
         <Progress value={timePercentage} />
       </div>
       <div className="space-y-1">
-        <h4 className="text-sm font-medium leading-none">Radix Primitives</h4>
+        <h4 className="text-4xl font-semibold leading-none">Pomodoro Timer</h4>
         <p className="text-sm text-muted-foreground">
           An open-source UI component library.
         </p>
@@ -209,20 +209,20 @@ function PomoSelector() {
       </div>
 
       <div
-        className="grid place-items-center max-h-[300px] max-w-[300px] h-[300px] w-[300px] mx-auto mt-8"
+        className="grid place-items-center max-h-[300px] max-w-[300px] h-[300px] w-[300px] mx-auto mt-8 mb-6"
       >
         <CircularProgressbar value={timePercentage} text={formatTime()} />
       </div>
-      <div className="flex flex-row justify-center mb-6">
+      <div className="flex flex-row justify-center mb-6 gap-x-2">
         <Button variant="secondary" onClick={() => toggleTime()} >{isActive ? 'Pause' : 'Start'}</Button>
         <Button variant="secondary" onClick={() => resetTime()}>Reset</Button>
       </div>
       <div>
         {/* <p>{formatTime(1500)}</p> */}
-        {
+        {/* {
           minutes === 0 && seconds === 0 ? <h3>{minutes}:{seconds}</h3> :
             <h3>{minutes}:{seconds < 10 ? `0${seconds}` : seconds}</h3>
-        }
+        } */}
       </div>
 
 
