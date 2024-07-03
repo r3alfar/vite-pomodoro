@@ -9,12 +9,13 @@ import {
 } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "../ui/button"
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form'
 import { Label } from "../ui/label";
 import { Input } from '@/components/ui/input'
 import { FormEvent, useState } from "react";
 import { TasksList, checklistItemsType, useTasksContext } from "./task-view";
 import { Checkbox } from "../ui/checkbox";
+import { v7 as uuidv7 } from "uuid";
 
 interface FormItems {
   title: string,
@@ -23,15 +24,20 @@ interface FormItems {
 }
 
 interface ChecklistItems {
-  id: string,
+  id?: number,
   title: string,
   notes?: string,
-  isChecked: boolean,
+  isChecked?: boolean,
 }
 
 function TaskDialog() {
-  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<FormItems>();
-  const arrChecklist = [];
+  const { register, handleSubmit, control, setValue, reset, formState: { errors } } = useForm<FormItems>();
+
+  const { register: register2, handleSubmit: handleSubmit2, control: control2, reset: reset2, formState: { errors: errors2 } } = useForm<FormItems>({
+    defaultValues: {
+      checklistItems: [{ title: "", isChecked: false }]
+    }
+  });
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const { filteredItems, setFilteredItems } = useTasksContext()
   const addChecklistTemplate: checklistItemsType = {
@@ -40,10 +46,23 @@ function TaskDialog() {
     isChecked: false
   }
   const [addChecklists, setAddChecklists] = useState([addChecklistTemplate]);
+  const { fields: fields2, append: append2, remove: remove2, update: update2 } = useFieldArray({
+    control: control2,
+    name: "checklistItems"
+  })
+  const [isSubmitted, setIsSubmitted] = useState(false)
 
   const onSubmitDefault: SubmitHandler<FormItems> = (data) => {
     // console.log(data)  
-    const lastId = filteredItems[filteredItems.length - 1].id
+    let lastId: number;
+    if (filteredItems.length > 0) {
+      console.log("filtedLenght: ", filteredItems.length)
+      lastId = filteredItems[filteredItems.length - 1].id
+      console.log("submitted default: ", lastId)
+    } else {
+      lastId = 0
+    }
+
     const newData: TasksList = {
       id: lastId + 1,
       title: data.title,
@@ -51,13 +70,61 @@ function TaskDialog() {
       taskType: "default"
     }
     setFilteredItems([newData, ...filteredItems])
-    console.log("submitted default: ", lastId)
+
+    reset({
+      title: "",
+      notes: "",
+    })
     setIsDialogOpen(false)
 
   }
 
   const onSubmitChecklist: SubmitHandler<FormItems> = (data) => {
-    console.log(data)
+    setIsSubmitted(true)
+    // console.log(data)
+
+    if (data.checklistItems) {
+      let lastId: number;
+      if (filteredItems.length > 0) {
+        console.log("filtedLenght: ", filteredItems.length)
+        lastId = filteredItems[filteredItems.length - 1].id
+        console.log("submitted default: ", lastId)
+      } else {
+        lastId = 0
+      }
+
+      let arrChecklistItems: checklistItemsType[] = []
+      // let last_checklistId: number;
+      data.checklistItems.map((item, index) => {
+        const checklistObj: checklistItemsType = {
+          id: index + 1,
+          title: item.title,
+          isChecked: item.isChecked ? item.isChecked : false
+        }
+        arrChecklistItems.push(checklistObj)
+      })
+      console.log(arrChecklistItems)
+      const newData: TasksList = {
+        id: lastId + 1,
+        title: data.title,
+        taskType: "checklist",
+        checklistItems: arrChecklistItems
+      }
+      console.log("ready to save: ", newData)
+      setFilteredItems([...filteredItems, newData])
+      // reset2({
+      //   title: "",
+      //   checklistItems: [{ title: "", isChecked: false }]
+      // })
+      setIsDialogOpen(false)
+      // console.log(addChecklists);
+    }
+
+
+  }
+
+  function handleCheckboxChanges(item: ChecklistItems, idx: number) {
+    update2(idx, { ...item, isChecked: !item.isChecked })
   }
 
   const addList = () => {
@@ -88,10 +155,10 @@ function TaskDialog() {
   }
 
   return (
-    <div className="mb-4">
+    <div className="">
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
-          <Button className="w-[400px]" variant="outline">Add Task</Button>
+          <Button className="" variant="outline">Add Task</Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
@@ -133,6 +200,7 @@ function TaskDialog() {
                         placeholder="notes"
                         {...register('notes', { required: 'Notes is required' })}
                       />
+                      {errors.notes && <p>{errors.notes.message}</p>}
                     </div>
                     <Button type="submit">Submit</Button>
                   </form>
@@ -142,7 +210,7 @@ function TaskDialog() {
               <TabsContent value="checklists">
                 <div className="">
                   <form
-                    onSubmit={handleSubmit(onSubmitChecklist)}
+                    onSubmit={handleSubmit2(onSubmitChecklist)}
                   >
                     <div className="grid w-full max-w-sm items-center gap-1.5">
                       <Label htmlFor="title">Title</Label>
@@ -150,44 +218,93 @@ function TaskDialog() {
                       <Input
                         id="title"
                         placeholder="title"
-                        {...register('title', { required: 'Title is required' })}
+                        {...register2('title', { required: 'Title is required' })}
                       />
+                      {errors2.title && <p>{errors2.title.message}</p>}
 
 
                     </div>
                     <div className="grid w-full max-w-sm items-center gap-1.5">
                       <Label htmlFor="checklist_item">Checklist Item</Label>
-                      {/* <div className="flex flex-row gap-2">
-                        <Input id="checklist_item" placeholder="checklist item" />
-                        <Button type="button" onClick={addList} size="sm">
-                          add
-                        </Button>
-                      </div> */}
                       <div className="flex flex-col gap-2">
                         {
-                          addChecklists.map((item) => (
-                            <div className="flex flex-row">
-                              <Checkbox defaultChecked={item.isChecked} />
-                              <Input key={item.id} />
-                              <Button type="button" onClick={handleAddChecklist} size="sm">
-                                +
-                              </Button>
+                          fields2.map((item, index) => (
+                            <div key={index} className="flex flex-row">
+                              <Checkbox
+                                key={item.title}
+                                id="isChecked"
+                                onCheckedChange={() => handleCheckboxChanges(item, index)}
+                                checked={item.isChecked}
+                                className="mr-2"
+                                {...register2(`checklistItems.${index}.isChecked`)}
+                              />
+                              <Input
+                                id="title"
+                                placeholder="insert sub item..."
+                                {...register2(`checklistItems.${index}.title`, { required: "Title is required" })}
+                              />
+                              {
+                                fields2.length - 1 !== 0 ?
+                                  <Button
+                                    size="icon"
+                                    type="button"
+                                    onClick={() => remove2(index)}
+                                  >
+                                    -
+                                  </Button>
+                                  : null
+                              }
+
+                              {
+                                index === (fields2.length - 1) ?
+                                  <Button
+                                    size="icon"
+                                    type="button"
+                                    onClick={() => append2({ title: "", isChecked: false })}
+                                  >
+                                    +
+                                  </Button>
+                                  : null
+                              }
+
+
+
+
                             </div>
                           ))
                         }
 
-                        {/* <Input id="checklist_item" placeholder="checklist item" />
-                        <Button type="button" onClick={addList} size="sm">
-                          add
-                        </Button> */}
+                        {/* <Button
+                            size="icon"
+                            type="button"
+                            onClick={() => append2({ title: "" })}
+                          >
+                            +
+                          </Button> */}
+
+
+
+
                       </div>
                     </div>
+
+
+                    <Button type="submit">adddd</Button>
+
 
                   </form>
                 </div>
 
               </TabsContent>
             </Tabs>
+          </div>
+
+          <div>
+            {
+              isSubmitted ?
+                <p>{JSON.stringify(register2, null, 2)}</p>
+                : null
+            }
           </div>
 
         </DialogContent>

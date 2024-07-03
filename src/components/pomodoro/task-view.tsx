@@ -134,7 +134,7 @@ export const useTasksContext = () => useContext(TasksContext)
 function TaskView() {
   const [taskCounter, setTaskCounter] = useState(0)
   // const [filteredItems, setFilteredItems] = useState(notifications)
-  const [filteredItems, setFilteredItems] = useState<TasksList[]>(notifications)
+  const [filteredItems, setFilteredItems] = useState<TasksList[]>([])
   const [cobaListItem, setCobaListItem] = useState(listItems)
   const [validate, setValidate] = useState(false)
 
@@ -213,80 +213,6 @@ function TaskView() {
         </div>
         {/* <Separator className="" /> */}
         <div className="mt-6 flex flex-col items-center space-y-4">
-          {/* <ScrollArea className="h-[350px]">
-          {
-            filteredItems.map((value) => (
-              // <Card className="w-[450px] mb-4" key={value.id}>
-              //   <CardHeader>
-              //     <div className=" grid grid-cols-[auto,1fr]">
-              //       <div className="col-span-1 inline-flex mt-2 mr-2">
-              //         <Checkbox id={value.id.toString()} defaultChecked={value.isChecked} />
-              //       </div>
-              //       <div className="col-span-1 text-justify pt-1">
-              //         <p>tes2Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
-              //       </div>
-              //     </div>
-              //     <p className="ml-4 text-start bg-yellow-200">outside div</p>
-              //   </CardHeader>
-              //   <CardContent>
-
-
-              //   </CardContent>
-              // </Card>
-
-
-
-              <Card className="w-[400px] mb-4" key={value.id}>
-                <CardHeader>
-                  <CardTitle className="flex justify-between">
-                    <div className="flex flex-wrap flex-grow-1">
-                      <p className="text-start text-wrap">{value.title}</p>
-                    </div>
-
-                    <div className="flex flex-row">
-                      <Button variant="ghost" size="sm" onClick={() => deleteTask(value.id)}>
-                        <Trash2Icon className="w-3 h-3" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <PencilIcon className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {
-                    value.checklistItems ?
-                      value.checklistItems.map((item, index) => (
-                        <div key={item.id} className="flex flex-col mb-2">
-
-                          <div className="flex flex-row justify-start items-center">
-                            <Checkbox key={item.title} defaultChecked={item.isChecked} className="mr-2" />
-                            <div className="flex flex-col justify-start items-start">
-                              <Label className="text-lg" htmlFor={item.title}>{item.title}</Label>
-                              <Label htmlFor={item.notes}>{item.notes}</Label>
-                            </div>
-
-                          </div>
-                        </div>
-
-
-                      ))
-                      :
-
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id={value.description} checked={value.isChecked} />
-                        <Label htmlFor="terms">{value.description}</Label>
-                      </div>
-                  }
-
-
-                </CardContent>
-              </Card>
-            ))
-
-          }
-        </ScrollArea> */}
-
           <ScrollArea
             className="h-[400px] w-[415px]"
           >
@@ -296,90 +222,107 @@ function TaskView() {
               onReorder={setFilteredItems}
             >
               {
-                filteredItems.map((value) => (
-                  <Reorder.Item
-                    key={value.id}
-                    value={value}
-                  >
-                    <Card
+                filteredItems.length > 0 ?
+                  filteredItems.map((value) => (
+                    <Reorder.Item
                       key={value.id}
-                      className={cn(
-                        "w-[400px] mb-4",
-                        {
-                          'bg-blue-400': value.checklistItems && isPartlyChecklistTrue(value.id),
-                          'bg-green-400': isItemCompleted(value),
-                          // 'bg-green-400': !value.checklistItems && value.isChecked === true,
-                          // 'bg-green-400': value.checklistItems && isAllChecklistTrue(value.id),
-                        }
-                      )}
+                      value={value}
                     >
-                      <CardHeader>
-                        <CardTitle className="flex justify-between">
+                      <Card
+                        key={value.id}
+                        className={cn(
+                          "w-[400px] mb-4",
                           {
-                            value.title && !value.checklistItems ?
-                              <div className="flex flex-row">
-                                <div className="mr-2">
-                                  <Checkbox id={value.title} onCheckedChange={() => handleDefaultChecklist(value.id)} checked={value.isChecked} />
-                                </div>
-                                <div className="flex flex-wrap flex-grow-1">
+                            'bg-blue-400': value.checklistItems && isPartlyChecklistTrue(value.id),
+                            'bg-green-400': isItemCompleted(value),
+                            // 'bg-green-400': !value.checklistItems && value.isChecked === true,
+                            // 'bg-green-400': value.checklistItems && isAllChecklistTrue(value.id),
+                          }
+                        )}
+                      >
+                        <CardHeader>
+                          <CardTitle className="flex justify-between">
+                            {
+                              value.title && !value.checklistItems ?
+                                <div className="flex flex-row">
+                                  <div className="mr-2">
+                                    <Checkbox id={value.title} onCheckedChange={() => handleDefaultChecklist(value.id)} checked={value.isChecked} />
+                                  </div>
+                                  <div className="flex flex-wrap flex-grow-1">
 
+                                    <p className="text-start text-wrap">{value.title}</p>
+                                  </div>
+                                </div>
+
+
+                                :
+
+                                <div className="flex flex-wrap flex-grow-1">
                                   <p className="text-start text-wrap">{value.title}</p>
                                 </div>
-                              </div>
+
+                            }
 
 
+                            <div className="flex flex-row">
+                              <Button variant="ghost" size="sm" onClick={() => deleteTask(value.id)}>
+                                <Trash2Icon className="w-3 h-3" />
+                              </Button>
+                              <Button variant="ghost" size="sm">
+                                <PencilIcon className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          {
+                            value.checklistItems ?
+                              value.checklistItems.map((item) => (
+                                <div key={item.id} className="flex flex-col mb-2">
+
+                                  <div className="flex flex-row justify-start items-center">
+                                    <Checkbox key={item.title} onCheckedChange={() => handleMultiChecklist(value.id, item.id)} checked={item.isChecked} className="mr-2" />
+                                    <div className="flex flex-col justify-start items-start">
+                                      <Label className="text-lg" htmlFor={item.title}>{item.title}</Label>
+                                      {/* <Label htmlFor={item.notes}>{item.notes}</Label> */}
+                                    </div>
+
+                                  </div>
+                                </div>
+
+
+                              ))
                               :
 
-                              <div className="flex flex-wrap flex-grow-1">
-                                <p className="text-start text-wrap">{value.title}</p>
+                              <div className="flex items-center space-x-2">
+                                {/* <Checkbox id={value.description} onCheckedChange={() => handleDefaultChecklist(value.id)} checked={value.isChecked} /> */}
+                                <Label htmlFor="terms">{value.description}</Label>
                               </div>
-
                           }
 
 
-                          <div className="flex flex-row">
-                            <Button variant="ghost" size="sm" onClick={() => deleteTask(value.id)}>
-                              <Trash2Icon className="w-3 h-3" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <PencilIcon className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        {
-                          value.checklistItems ?
-                            value.checklistItems.map((item) => (
-                              <div key={item.id} className="flex flex-col mb-2">
-
-                                <div className="flex flex-row justify-start items-center">
-                                  <Checkbox key={item.title} onCheckedChange={() => handleMultiChecklist(value.id, item.id)} checked={item.isChecked} className="mr-2" />
-                                  <div className="flex flex-col justify-start items-start">
-                                    <Label className="text-lg" htmlFor={item.title}>{item.title}</Label>
-                                    {/* <Label htmlFor={item.notes}>{item.notes}</Label> */}
-                                  </div>
-
-                                </div>
-                              </div>
+                        </CardContent>
+                      </Card>
+                    </Reorder.Item>
 
 
-                            ))
-                            :
+                  ))
 
-                            <div className="flex items-center space-x-2">
-                              {/* <Checkbox id={value.description} onCheckedChange={() => handleDefaultChecklist(value.id)} checked={value.isChecked} /> */}
-                              <Label htmlFor="terms">{value.description}</Label>
-                            </div>
-                        }
+                  :
 
-
-                      </CardContent>
-                    </Card>
-                  </Reorder.Item>
-
-
-                ))
+                  <Card
+                    className="w-[400px]"
+                  >
+                    <CardHeader>
+                      <CardDescription>
+                        Add your first Task
+                        <TaskDialog />
+                      </CardDescription>
+                    </CardHeader>
+                    {/* <CardContent>
+                      <h3 className="italic text-slate-400">Add your Task with the button Below</h3>
+                    </CardContent> */}
+                  </Card>
 
               }
 

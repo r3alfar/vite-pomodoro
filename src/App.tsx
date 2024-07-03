@@ -18,7 +18,7 @@ function App() {
       <div>
         <TaskView />
       </div>
-      <div className='flex flex-row justify-center'>
+      <div className='flex flex-row justify-center mt-4'>
         <a href="https://vitejs.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
